@@ -8,11 +8,15 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable } from 'rxjs';
+import { skipWhile, take } from 'rxjs/operators';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard implements CanLoad {
+  constructor(private authService: AuthService) {}
+
   canLoad(
     route: Route,
     segments: UrlSegment[]
@@ -21,6 +25,9 @@ export class AuthGuard implements CanLoad {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    return false;
+    return this.authService.signedin$.pipe(
+      skipWhile((value) => value === null),
+      take(1)
+    );
   }
 }
